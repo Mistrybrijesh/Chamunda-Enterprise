@@ -146,3 +146,4 @@ npm run dev
 - `/categories` — Category management
 - `/banners` — Banner slider management
 - `/orders` — Order management + status updates
+# Funiture
