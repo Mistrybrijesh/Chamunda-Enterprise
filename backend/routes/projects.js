@@ -35,6 +35,22 @@ router.put('/:id', protectAdmin, async (req, res) => {
   }
 });
 
+// PATCH /api/projects/:id/images — Update gallery images (Admin only)
+router.patch('/:id/images', protectAdmin, async (req, res) => {
+  try {
+    const { images } = req.body; // array of image URLs
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { images: Array.isArray(images) ? images : [] },
+      { new: true }
+    );
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    res.json({ success: true, project });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 // DELETE /api/projects/:id — Admin only
 router.delete('/:id', protectAdmin, async (req, res) => {
   try {

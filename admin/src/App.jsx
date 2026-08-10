@@ -7,6 +7,7 @@ import Products from './pages/Products';
 import Categories from './pages/Categories';
 import Banners from './pages/Banners';
 import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 import Orders from './pages/Orders';
 
 function ProtectedRoute({ children }) {
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="banners"    element={<Banners />} />
         <Route path="projects"   element={<Projects />} />
+        <Route path="projects/:id" element={<ProjectDetail />} />
         <Route path="orders"     element={<Orders />} />
       </Route>
     </Routes>

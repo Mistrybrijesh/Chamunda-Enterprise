@@ -13,21 +13,33 @@ const resolveUrl = (file) => {
 };
 
 // POST /api/upload — Upload single image (Admin only)
-router.post('/', protectAdmin, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' });
-  }
-  const { url, public_id } = resolveUrl(req.file);
-  res.json({ success: true, url, public_id });
+router.post('/', protectAdmin, (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      console.error('Single upload error:', err.message);
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const { url, public_id } = resolveUrl(req.file);
+    res.json({ success: true, url, public_id });
+  });
 });
 
 // POST /api/upload/multiple — Upload multiple images (Admin only)
-router.post('/multiple', protectAdmin, upload.array('images', 10), (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ success: false, message: 'No files uploaded' });
-  }
-  const images = req.files.map(resolveUrl);
-  res.json({ success: true, images });
+router.post('/multiple', protectAdmin, (req, res) => {
+  upload.array('images', 20)(req, res, (err) => {
+    if (err) {
+      console.error('Multiple upload error:', err.message);
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' });
+    }
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No files uploaded' });
+    }
+    const images = req.files.map(resolveUrl);
+    res.json({ success: true, images });
+  });
 });
 
 module.exports = router;

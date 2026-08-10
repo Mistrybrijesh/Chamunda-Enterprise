@@ -62,7 +62,10 @@ export default function Layout() {
 
       <div className="main-content">
         <div className="topbar">
-          <h1>{pageTitles[location.pathname] || 'Admin'}</h1>
+          <h1>
+            {pageTitles[location.pathname] ||
+              (location.pathname.startsWith('/projects/') ? 'Project Details' : 'Admin')}
+          </h1>
           <div className="topbar-right">
             <span className="admin-badge">👤 {admin?.name || 'Admin'}</span>
           </div>

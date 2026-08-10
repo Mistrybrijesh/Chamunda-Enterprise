@@ -30,7 +30,7 @@ if (isCloudinaryConfigured) {
     },
   });
 
-  upload      = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+  upload      = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
   storageMode = 'cloudinary';
   console.log('🖼️  Image storage: Cloudinary');
 
@@ -48,7 +48,7 @@ if (isCloudinaryConfigured) {
     },
   });
 
-  upload      = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+  upload      = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
   storageMode = 'local';
   console.log('🖼️  Image storage: Local disk (set CLOUDINARY_CLOUD_NAME in .env to use Cloudinary)');
 }
