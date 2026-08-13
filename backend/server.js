@@ -13,25 +13,13 @@ app.use(express.urlencoded({ extended: true }));
 // ─── CORS ────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://chamunda-enterprise-admin.vercel.app',
-  process.env.CLIENT_URL,
-  process.env.ADMIN_URL,
-].filter(Boolean);
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Postman / server-to-server requests
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      console.log('❌ CORS blocked origin:', origin);
-      return callback(new Error('Not allowed by CORS'));
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -39,7 +27,7 @@ app.use(
 );
 
 // Handle preflight requests
-app.options('*', cors());
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 
 // ─── Uploads ─────────────────────────────────────────────────
 app.use(
