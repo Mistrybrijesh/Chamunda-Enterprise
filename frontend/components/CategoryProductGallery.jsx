@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import ImageLightbox from './ImageLightbox';
+import resolveImageUrl from '../lib/imageUrl';
 
 export default function CategoryProductGallery({ categories, products, activeCategory = '' }) {
   const visibleCategories = activeCategory
@@ -26,7 +27,7 @@ export default function CategoryProductGallery({ categories, products, activeCat
               <div className="category-image-grid">
                 {category.products.map((product) => {
                   const images = (product.images || []).filter(Boolean)
-                    .map((src) => ({ src, alt: product.name }));
+                    .map((src) => ({ src: resolveImageUrl(src), alt: product.name }));
                   if (images.length === 0) return null;
                   return (
                     <button
