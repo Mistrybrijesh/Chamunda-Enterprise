@@ -196,7 +196,6 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
         {images.length > 1 && (
           <span className="lightbox-count">{activeIndex + 1} / {images.length}</span>
         )}
-        <span className="lightbox-hint">Scroll or pinch to zoom · Drag to move</span>
       </div>
       {images.length > 1 && (
         <button
@@ -213,9 +212,9 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
       )}
       <style>{`
         .image-lightbox {
-          position: fixed; inset: 68px 0 0; z-index: 1000;
+          position: fixed; inset: 0; z-index: 1000;
           display: flex; align-items: center; justify-content: center;
-          padding: 32px 48px; background: rgba(15, 12, 10, .94);
+          padding: 64px 72px 48px; background: rgba(0, 0, 0, .94);
         }
         .lightbox-content {
           position: relative; display: flex; flex-direction: column; align-items: center;
@@ -231,6 +230,7 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
           transform-origin: center; user-select: none; -webkit-user-drag: none;
         }
         .lightbox-controls {
+          position: absolute; top: 12px; right: 76px;
           display: flex; align-items: center; gap: 12px; height: 48px;
           padding: 5px 12px; color: #fff; background: rgba(255,255,255,.12);
           border-radius: 24px; flex-shrink: 0;
@@ -244,11 +244,7 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
         .lightbox-controls button:disabled { opacity: .4; cursor: default; }
         .lightbox-controls span { min-width: 42px; text-align: center; font-size: 12px; }
         .lightbox-count {
-          position: absolute; bottom: 14px; left: 0; color: #fff; font-size: 13px;
-        }
-        .lightbox-hint {
-          position: absolute; right: 0; bottom: 14px;
-          color: rgba(255,255,255,.65); font-size: 11px;
+          position: absolute; bottom: 16px; left: 24px; color: #fff; font-size: 13px;
         }
         .lightbox-close, .lightbox-arrow {
           position: absolute; z-index: 2;
@@ -257,18 +253,20 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
           border-radius: 50%; width: 48px; height: 48px; transition: background .2s;
         }
         .lightbox-close:hover, .lightbox-arrow:hover { background: rgba(255,255,255,.25); }
-        .lightbox-close { top: 16px; right: 24px; }
+        .lightbox-close { top: 12px; right: 16px; }
         .lightbox-arrow { top: 50%; transform: translateY(-50%); }
         .lightbox-prev { left: 20px; }
         .lightbox-next { right: 20px; }
         @media (max-width: 600px) {
-          .image-lightbox { padding: 24px 16px; }
-          .lightbox-close { top: 12px; right: 12px; }
+          .image-lightbox { padding: 58px 12px 36px; }
+          .lightbox-controls { top: 8px; right: 64px; gap: 4px; padding: 4px 8px; height: 42px; }
+          .lightbox-controls button { width: 30px; height: 30px; }
+          .lightbox-controls span { min-width: 36px; font-size: 11px; }
+          .lightbox-close { top: 8px; right: 8px; width: 42px; height: 42px; }
           .lightbox-arrow { width: 40px; height: 40px; }
           .lightbox-prev { left: 8px; }
           .lightbox-next { right: 8px; }
-          .lightbox-count { left: 50%; transform: translateX(-50%); bottom: -24px; }
-          .lightbox-hint { display: none; }
+          .lightbox-count { left: 50%; transform: translateX(-50%); bottom: 10px; }
         }
       `}</style>
     </div>
