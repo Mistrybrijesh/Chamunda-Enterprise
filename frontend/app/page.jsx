@@ -59,14 +59,6 @@ const WHY_US = [
   { icon: '🛡️', title: '5-Year Warranty', desc: 'Structural warranty on every piece' },
 ];
 
-const FALLBACK_PROJECTS = [
-  { id:1, title:'Modern Villa — Surat', category:'Residential', image:'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=900&q=80' },
-  { id:2, title:'Corporate Office — Ahmedabad', category:'Commercial', image:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80' },
-  { id:3, title:'Luxury Penthouse — Mumbai', category:'Residential', image:'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=900&q=80' },
-  { id:4, title:'Boutique Hotel — Vadodara', category:'Hospitality', image:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80' },
-  { id:5, title:'Family Home — Rajkot', category:'Residential', image:'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=900&q=80' },
-];
-
 export default function HomePage() {
   const [banners, setBanners]     = useState([]);
   const [featured, setFeatured]   = useState([]);
@@ -83,15 +75,21 @@ export default function HomePage() {
   const projRef = useReveal();
 
   useEffect(() => {
-    Promise.all([
-      API.get('/banners'),
-      API.get('/products?featured=true&limit=8'),
-      API.get('/projects'),
-    ]).then(([b, p, pr]) => {
-      setBanners(b.data.banners || []);
-      setFeatured(p.data.products || []);
-      setProjects(pr.data.projects || []);
-    }).catch(() => {});
+    const loadLiveContent = () => {
+      Promise.all([
+        API.get('/banners'),
+        API.get('/products?featured=true&limit=8'),
+        API.get('/projects'),
+      ]).then(([b, p, pr]) => {
+        setBanners(b.data.banners || []);
+        setFeatured(p.data.products || []);
+        setProjects(pr.data.projects || []);
+      }).catch(() => {});
+    };
+
+    loadLiveContent();
+    const refresh = setInterval(loadLiveContent, 30000);
+    return () => clearInterval(refresh);
   }, []);
 
   const slides = banners.length > 0 ? banners.map((b, i) => ({
@@ -115,7 +113,9 @@ export default function HomePage() {
 
   // Projects auto-play every 5 seconds
   useEffect(() => {
-    const total = projects.length || FALLBACK_PROJECTS.length;
+    const total = projects.length;
+    if (total === 0) return;
+    setProjIdx(i => i >= total ? 0 : i);
     if (total < 2) return;
     const t = setInterval(() => {
       setProjAnimDir('left');
@@ -203,7 +203,18 @@ export default function HomePage() {
 
       {/* ── PROJECTS SWIPER ── */}
       {(() => {
-        const projList = projects.length > 0 ? projects : FALLBACK_PROJECTS;
+        if (projects.length === 0) {
+          return (
+            <section className="proj-section reveal-section" ref={projRef}>
+              <div className="proj-header">
+                <h2>PROJECTS</h2>
+                <Link href="/projects" className="proj-discover">Discover more →</Link>
+              </div>
+            </section>
+          );
+        }
+
+        const projList = projects;
         const total = projList.length;
         const prevProj = () => { setProjAnimDir('right'); setProjIdx(i => (i - 1 + total) % total); };
         const nextProj = () => { setProjAnimDir('left');  setProjIdx(i => (i + 1) % total); };
