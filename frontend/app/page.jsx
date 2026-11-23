@@ -244,13 +244,18 @@ export default function HomePage() {
                 <div className="proj-side-label">{projList[(projIdx - 1 + total) % total].title}</div>
               </div>
               {/* Main card — key forces re-mount = animation re-triggers */}
-              <div className={`proj-main proj-anim-${projAnimDir}`} key={projIdx}>
+              <Link
+                href={`/projects/${projList[projIdx]._id}`}
+                className={`proj-main proj-anim-${projAnimDir}`}
+                key={projList[projIdx]._id}
+                aria-label={`View ${projList[projIdx].title} project`}
+              >
                 <img src={projList[projIdx].image} alt={projList[projIdx].title} />
                 <div className="proj-main-info">
                   <span className="proj-cat">{projList[projIdx].category}</span>
                   <h3>{projList[projIdx].title}</h3>
                 </div>
-              </div>
+              </Link>
               {/* Next card (partial) */}
               <div className="proj-side proj-side-right" onClick={nextProj}>
                 <img src={projList[(projIdx + 1) % total].image} alt="" />

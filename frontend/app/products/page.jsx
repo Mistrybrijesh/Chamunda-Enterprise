@@ -1,96 +1,86 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import API from '../../lib/api';
-import ProductCard from '../../components/ProductCard';
+import CategoryProductGallery from '../../components/CategoryProductGallery';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
-  const [products, setProducts]     = useState([]);
+  const activeCategory = searchParams.get('category') || '';
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || '');
-  const [search, setSearch]         = useState('');
-  const [sort, setSort]             = useState('newest');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    API.get('/categories').then(({ data }) => setCategories(data.categories));
+    let active = true;
+
+    const loadProducts = async () => {
+      try {
+        const [categoryResponse, productResponse] = await Promise.all([
+          API.get('/categories'),
+          API.get('/products?limit=100'),
+        ]);
+        if (!active) return;
+
+        const pageCount = productResponse.data.pagination?.pages || 1;
+        const remainingPages = await Promise.all(
+          Array.from({ length: pageCount - 1 }, (_, index) =>
+            API.get(`/products?page=${index + 2}&limit=100`)
+          )
+        );
+        if (!active) return;
+
+        setCategories(categoryResponse.data.categories || []);
+        setProducts([
+          ...(productResponse.data.products || []),
+          ...remainingPages.flatMap((response) => response.data.products || []),
+        ]);
+      } catch {
+        if (active) setError('Could not load product images. Please try again later.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadProducts();
+    return () => { active = false; };
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    const params = new URLSearchParams({ limit: 50, sort });
-    if (activeCategory) params.append('category', activeCategory);
-    if (search)         params.append('search', search);
-    API.get(`/products?${params}`)
-      .then(({ data }) => setProducts(data.products))
-      .finally(() => setLoading(false));
-  }, [activeCategory, sort, search]);
+  const filteredProducts = activeCategory
+    ? products.filter((product) =>
+        product.category?._id === activeCategory || product.category?.slug === activeCategory
+      )
+    : products;
+  const filteredCategories = activeCategory
+    ? categories.filter((category) =>
+        category._id === activeCategory || category.slug === activeCategory
+      )
+    : categories;
 
   return (
     <div>
       <div className="page-band">
         <div className="container">
           <h1>Our Collection</h1>
-          <p style={{color:'var(--text2)',marginTop:6}}>{products.length} products available</p>
+          <p style={{ color: 'var(--text2)', marginTop: 6 }}>
+            Browse furniture images by category
+          </p>
         </div>
       </div>
 
-      <div className="container products-top-container" style={{paddingTop:40, paddingBottom:80}}>
-        <div className="products-layout">
-          {/* Sidebar Filters */}
-          <aside className="filter-sidebar">
-            <h3>Filter</h3>
-            <div className="filter-group">
-              <h3>Category</h3>
-              <div
-                className={`filter-item ${activeCategory === '' ? 'active' : ''}`}
-                onClick={() => setActiveCategory('')}
-              >All</div>
-              {categories.map((c) => (
-                <div
-                  key={c._id}
-                  className={`filter-item ${activeCategory === c._id ? 'active' : ''}`}
-                  onClick={() => setActiveCategory(c._id)}
-                >
-                  {c.name}
-                </div>
-              ))}
-            </div>
-          </aside>
-
-          {/* Products Grid */}
-          <div>
-            {/* Search + Sort bar */}
-            <div style={{display:'flex',flexWrap:'wrap',gap:12,marginBottom:24,alignItems:'center'}}>
-              <input
-                style={{flex:1,padding:'10px 16px',border:'1px solid var(--border)',borderRadius:10,fontSize:14}}
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <select
-                style={{padding:'10px 16px',border:'1px solid var(--border)',borderRadius:10,fontSize:14,background:'var(--bg)',color:'var(--text)'}}
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-              >
-                <option value="newest">Newest First</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
-            </div>
-
-            {loading ? (
-              <div className="loading-wrap"><div className="spinner" /></div>
-            ) : products.length === 0 ? (
-              <div className="empty"><h3>No products found</h3><p>Try a different category or search term</p></div>
-            ) : (
-              <div className="products-grid">
-                {products.map((p) => <ProductCard key={p._id} product={p} />)}
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="container" style={{ paddingTop: 40, paddingBottom: 80 }}>
+        {loading ? (
+          <div className="loading-wrap"><div className="spinner" /></div>
+        ) : error ? (
+          <div className="empty"><h3>{error}</h3></div>
+        ) : (
+          <CategoryProductGallery
+            categories={filteredCategories}
+            products={filteredProducts}
+            activeCategory={activeCategory}
+          />
+        )}
       </div>
     </div>
   );

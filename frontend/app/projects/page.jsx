@@ -51,7 +51,7 @@ export default async function ProjectsPage() {
                 <h3>Projects Coming Soon</h3>
               </div>
             ) : projects.map((p) => (
-              <div key={p._id} className="project-card">
+              <Link key={p._id} href={`/projects/${p._id}`} className="project-card">
                 <div className="project-card-img">
                   <img src={p.image} alt={p.title} />
                   <div className="project-card-overlay">
@@ -63,7 +63,7 @@ export default async function ProjectsPage() {
                   <h3>{p.title}</h3>
                   <p>{p.desc}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -14,6 +14,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/projects/:id — Public: project detail and gallery
+router.get('/:id', async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.id, isActive: true });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    res.json({ success: true, project });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 // POST /api/projects — Admin only
 router.post('/', protectAdmin, async (req, res) => {
   try {
