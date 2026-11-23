@@ -13,21 +13,59 @@ app.use(express.urlencoded({ extended: true }));
 // ─── CORS ────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://chamunda-enterprise-admin.vercel.app',
+  'https://chamunda-enterprise.vercel.app',
   'http://localhost:3000',
-  'http://localhost:3001'
+  'http://localhost:3001',
+  process.env.ADMIN_URL,
+  process.env.CLIENT_URL,
 ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow Postman / server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
-// Handle preflight requests
-app.options('*', cors({ origin: allowedOrigins, credentials: true }));
+    // Production + localhost
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow Vercel preview deployments of this project
+    if (
+      /^https:\/\/chamunda-enterprise-(admin|gamma|[^.]+).*\.vercel\.app$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+
+    console.log('❌ CORS blocked:', origin);
+    return callback(null, false);
+  },
+
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
+// Preflight
+app.options('*', cors(corsOptions));
 
 // ─── Uploads ─────────────────────────────────────────────────
 app.use(
@@ -36,15 +74,50 @@ app.use(
 );
 
 // ─── Database ────────────────────────────────────────────────
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+let mongoConnectionPromise;
+
+const connectDatabase = () => {
+  if (mongoose.connection.readyState === 1) {
+    return Promise.resolve();
+  }
+
+  if (!process.env.MONGO_URI) {
+    return Promise.reject(new Error('MONGO_URI is not configured'));
+  }
+
+  if (!mongoConnectionPromise) {
+    mongoConnectionPromise = mongoose
+      .connect(process.env.MONGO_URI)
+      .then(() => {
+        console.log('✅ MongoDB connected');
+      })
+      .catch((err) => {
+        mongoConnectionPromise = undefined;
+        console.error('❌ MongoDB connection error:', err.message);
+        throw err;
+      });
+  }
+
+  return mongoConnectionPromise;
+};
+
+if (process.env.MONGO_URI) {
+  connectDatabase().catch(() => {});
+}
 
 // ─── Routes ──────────────────────────────────────────────────
+app.use('/api', async (_req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (err) {
+    res.status(503).json({
+      success: false,
+      message: 'Database unavailable',
+    });
+  }
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/categories', require('./routes/categories'));
