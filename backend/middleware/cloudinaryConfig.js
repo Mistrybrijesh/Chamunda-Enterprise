@@ -4,8 +4,14 @@ const fs     = require('fs');
 
 // ─── Check if Cloudinary is properly configured ───────────────
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME || '';
+const apiKey = process.env.CLOUDINARY_API_KEY || '';
+const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
 const isCloudinaryConfigured =
-  cloudName && cloudName !== 'your_cloud_name' && cloudName.trim() !== '';
+  cloudName !== '' &&
+  cloudName !== 'your_cloud_name' &&
+  apiKey !== '' &&
+  apiSecret !== '' &&
+  apiSecret !== 'your_cloudinary_api_secret';
 
 let upload;
 let storageMode;
