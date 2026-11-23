@@ -1,10 +1,11 @@
-'use client';
-import { useState } from 'react';
-import ImageLightbox from './ImageLightbox';
+"use client";
+import { useState } from "react";
+import ImageLightbox from "./ImageLightbox";
 
 export default function ProjectGallery({ project }) {
-  const images = [...new Set([project.image, ...(project.images || [])].filter(Boolean))]
-    .map((src) => ({ src, alt: project.title }));
+  const images = [
+    ...new Set([project.image, ...(project.images || [])].filter(Boolean)),
+  ].map((src) => ({ src, alt: project.title }));
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
   return (
@@ -18,7 +19,11 @@ export default function ProjectGallery({ project }) {
             onClick={() => setLightboxIndex(index)}
             aria-label={`View project photo ${index + 1}`}
           >
-            <img src={image.src} alt={`${project.title} — photo ${index + 1}`} loading="lazy" />
+            <img
+              src={image.src}
+              alt={`${project.title} — photo ${index + 1}`}
+              loading="lazy"
+            />
           </button>
         ))}
       </div>
@@ -36,7 +41,7 @@ export default function ProjectGallery({ project }) {
         }
         .project-gallery-image {
           border: 0; padding: 0; overflow: hidden; background: var(--cream3);
-          aspect-ratio: 4 / 3; cursor: zoom-in;
+          aspect-ratio: 4 / 3; cursor:  poiter;
         }
         .project-gallery-image img {
           width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease;
