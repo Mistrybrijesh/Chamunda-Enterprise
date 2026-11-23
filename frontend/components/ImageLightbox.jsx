@@ -106,10 +106,18 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
     gestureRef.current = null;
   };
 
-  const handleWheel = (event) => {
-    event.preventDefault();
-    zoomAt(zoom * (event.deltaY < 0 ? 1.2 : 1 / 1.2), event.clientX, event.clientY);
-  };
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return undefined;
+
+    const handleWheel = (event) => {
+      event.preventDefault();
+      zoomAt(zoom * (event.deltaY < 0 ? 1.2 : 1 / 1.2), event.clientX, event.clientY);
+    };
+
+    stage.addEventListener('wheel', handleWheel, { passive: false });
+    return () => stage.removeEventListener('wheel', handleWheel);
+  }, [zoom]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -158,7 +166,6 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          onWheel={handleWheel}
           onDoubleClick={(event) => {
             if (zoom === 1) zoomAt(2.5, event.clientX, event.clientY);
             else resetZoom();
