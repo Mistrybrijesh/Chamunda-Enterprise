@@ -5,58 +5,26 @@ export const metadata = {
   description: 'Explore our interior design projects and furniture installations across India.',
 };
 
-const PROJECTS = [
-  {
-    id: 1,
-    title: 'Modern Villa — Surat',
-    category: 'Residential',
-    year: '2025',
-    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80',
-    desc: 'Full living room and bedroom setup with custom walnut furniture.',
-  },
-  {
-    id: 2,
-    title: 'Corporate Office — Ahmedabad',
-    category: 'Commercial',
-    year: '2025',
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
-    desc: 'Premium office interiors with ergonomic and aesthetic furniture.',
-  },
-  {
-    id: 3,
-    title: 'Luxury Penthouse — Mumbai',
-    category: 'Residential',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
-    desc: 'Bespoke dining and lounge furniture for a sea-facing penthouse.',
-  },
-  {
-    id: 4,
-    title: 'Boutique Hotel — Vadodara',
-    category: 'Hospitality',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
-    desc: 'Complete room furnishing for a 40-room boutique hotel.',
-  },
-  {
-    id: 5,
-    title: 'Family Home — Rajkot',
-    category: 'Residential',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=800&q=80',
-    desc: 'Traditional teak furniture blended with modern minimal design.',
-  },
-  {
-    id: 6,
-    title: 'Restaurant — Gandhinagar',
-    category: 'Hospitality',
-    year: '2023',
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
-    desc: 'Custom dining chairs, tables and bar furniture for a premium restaurant.',
-  },
-];
+export const revalidate = 0;
 
-export default function ProjectsPage() {
+async function getProjects() {
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://chamunda-enterprise-gamma.vercel.app/api';
+
+  try {
+    const response = await fetch(`${apiUrl}/projects`, { cache: 'no-store' });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.projects || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function ProjectsPage() {
+  const projects = await getProjects();
+
   return (
     <>
       {/* Page Band */}
@@ -78,8 +46,12 @@ export default function ProjectsPage() {
       <section className="section">
         <div className="container">
           <div className="projects-grid">
-            {PROJECTS.map((p) => (
-              <div key={p.id} className="project-card">
+            {projects.length === 0 ? (
+              <div className="empty" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px' }}>
+                <h3>Projects Coming Soon</h3>
+              </div>
+            ) : projects.map((p) => (
+              <div key={p._id} className="project-card">
                 <div className="project-card-img">
                   <img src={p.image} alt={p.title} />
                   <div className="project-card-overlay">
