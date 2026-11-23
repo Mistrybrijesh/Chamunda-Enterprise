@@ -251,7 +251,8 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
           color: rgba(255,255,255,.65); font-size: 11px;
         }
         .lightbox-close, .lightbox-arrow {
-          position: absolute; display: flex; align-items: center; justify-content: center;
+          position: absolute; z-index: 2;
+          display: flex; align-items: center; justify-content: center;
           border: 0; color: #fff; background: rgba(255,255,255,.12);
           border-radius: 50%; width: 48px; height: 48px; transition: background .2s;
         }
