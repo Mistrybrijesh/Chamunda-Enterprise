@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 // ─── CORS ────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://chamunda-enterprise-admin.vercel.app',
-  'https://chamunda-enterprise.vercel.app',
+  'https://chamunda-enterprises.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
   process.env.ADMIN_URL,
@@ -34,7 +34,7 @@ const corsOptions = {
 
     // Allow Vercel preview deployments of this project
     if (
-      /^https:\/\/chamunda-enterprise-(admin|gamma|[^.]+).*\.vercel\.app$/.test(origin)
+      /^https:\/\/chamunda-enterprise(?:s|-admin|-gamma|-)[^.]*\.vercel\.app$/.test(origin)
     ) {
       return callback(null, true);
     }
