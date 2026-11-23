@@ -69,16 +69,16 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
       )}
       <style>{`
         .image-lightbox {
-          position: fixed; inset: 0; z-index: 1000;
+          position: fixed; inset: 68px 0 0; z-index: 1000;
           display: flex; align-items: center; justify-content: center;
-          padding: 48px; background: rgba(15, 12, 10, .94);
+          padding: 32px 48px; background: rgba(15, 12, 10, .94);
         }
         .lightbox-content {
           display: flex; flex-direction: column; align-items: center;
           max-width: min(1100px, 100%); max-height: 100%;
         }
         .lightbox-content img {
-          max-width: 100%; max-height: calc(100vh - 120px);
+          max-width: 100%; max-height: calc(100vh - 168px);
           width: auto; height: auto; object-fit: contain;
         }
         .lightbox-close, .lightbox-arrow {
@@ -87,13 +87,14 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
           border-radius: 50%; width: 48px; height: 48px; transition: background .2s;
         }
         .lightbox-close:hover, .lightbox-arrow:hover { background: rgba(255,255,255,.25); }
-        .lightbox-close { top: 20px; right: 24px; }
+        .lightbox-close { top: 16px; right: 24px; }
         .lightbox-arrow { top: 50%; transform: translateY(-50%); }
         .lightbox-prev { left: 20px; }
         .lightbox-next { right: 20px; }
         .lightbox-count { color: #fff; font-size: 13px; padding-top: 12px; }
         @media (max-width: 600px) {
-          .image-lightbox { padding: 56px 16px; }
+          .image-lightbox { padding: 24px 16px; }
+          .lightbox-content img { max-height: calc(100vh - 140px); }
           .lightbox-close { top: 12px; right: 12px; }
           .lightbox-arrow { width: 40px; height: 40px; }
           .lightbox-prev { left: 8px; }
