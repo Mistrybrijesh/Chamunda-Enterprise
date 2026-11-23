@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Minus, Plus, RotateCcw, X } from 'lucide-react';
 
 export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [portalTarget, setPortalTarget] = useState(null);
   const stageRef = useRef(null);
   const imageRef = useRef(null);
   const pointersRef = useRef(new Map());
@@ -107,8 +109,12 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
   };
 
   useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  useEffect(() => {
     const stage = stageRef.current;
-    if (!stage) return undefined;
+    if (!stage || !portalTarget) return undefined;
 
     const handleWheel = (event) => {
       event.preventDefault();
@@ -117,7 +123,7 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
 
     stage.addEventListener('wheel', handleWheel, { passive: false });
     return () => stage.removeEventListener('wheel', handleWheel);
-  }, [zoom]);
+  }, [portalTarget, zoom]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -136,11 +142,11 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
     };
   }, [activeIndex, images.length, onClose]);
 
-  if (!images.length) return null;
+  if (!images.length || !portalTarget) return null;
 
   const image = images[activeIndex];
 
-  return (
+  return createPortal((
     <div className="image-lightbox" onClick={onClose}>
       <button className="lightbox-close" type="button" onClick={onClose} aria-label="Close image viewer">
         <X size={24} />
@@ -270,5 +276,5 @@ export default function ImageLightbox({ images, initialIndex = 0, onClose }) {
         }
       `}</style>
     </div>
-  );
+  ), portalTarget);
 }
